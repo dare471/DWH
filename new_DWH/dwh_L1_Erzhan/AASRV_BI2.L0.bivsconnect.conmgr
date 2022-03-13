@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="AASRV_BI2.L0.bivsconnect"
+  DTS:DTSID="{0365003D-0C92-4D4E-95FC-C06C1A93812D}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=AASRVVBI;User ID=bivsconnectl0;Initial Catalog=L0;Provider=SQLNCLI11.1;Persist Security Info=True;Auto Translate=False;">
+      <DTS:Password
+        DTS:Name="Password"
+        Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAn4egEGfJKkuVlPXNRw8bRwAAAAACAAAAAAADZgAAwAAAABAAAAC6ws0NXQZNJJjlR/uXJDxUAAAAAASAAACgAAAAEAAAAKYPZ/uPCGMB3i5mt8/n2lN4AAAAx+2NsXnva4QLWVf4MM0OyWkv+DEqqLvDfVzYLKX2l46RJ4V06RBXmyrDl3FWEg3h1aP/yT4E7z1Cwg1kDHMXv8E27zet9+zF+oaBtxsm2ZxNTq58o2hiGF9lxndS8EJR9nYPJgLm40PRmlAgLt5S7AAvtFXpoNBdFAAAADA1GghAK9SOSjxitTVeVMT8aHLn</DTS:Password>
+    </DTS:ConnectionManager>
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
