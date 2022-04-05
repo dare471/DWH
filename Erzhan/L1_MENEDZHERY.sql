@@ -1,0 +1,6 @@
+SELECT [ssylka] as [guid]
+      ,[naimenovanie] as [naimenovanie]
+      ,[podrazdelenie] as [podrazdelenie_guid]
+      ,[fizicheskoe_litso] as [fizicheskoe_litso_guid]
+	  ,'erp' as [source_base]
+  FROM [L0].[dbo].[polzovateli]
