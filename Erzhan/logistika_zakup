@@ -1,0 +1,284 @@
+import pandas as pd
+import pyodbc
+from datetime import date
+import datetime
+from pandas import Timestamp
+today = date.today()
+# server = '192.168.1.209'  #tcp:myserver.database.windows.net 
+# database = 'AA_DWH_X' #mydb
+# username = 'pbi_report' #myusername 
+# password = '1s22s22p6' #mypassword
+conn = pyodbc.connect('Driver=SQL Server;Server=192.168.1.209;Database=AA_DWH_X;Trusted_Connection=yes;')
+cursor = conn.cursor()
+sql = ('''
+ /****** Скрипт для команды SelectTopNRows из среды SSMS  ******/
+SELECT N.NAIMENOVANIE as [NOMENKLATURA]
+	  ,N.PROIZVODITELI as PROIZVODITELI
+	  ,([DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI]/7)+DATEPART(WEEK,GETDATE()) as [week]
+	  ,DATEADD(WEEK, ([DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI]/7)+DATEPART(WEEK,GETDATE()) ,'25/12/2021') as [DATE] --пхду не применяется хз крч
+	  ,SUM(KOLICHESTVO) as [OSTATKI_PO_SROKAM]
+  FROM [L1].[dbo].[TOVARY_NA_SKLADAKH_OSTATKI_PO_SROKAM_GODNOSTI] SG 
+  LEFT JOIN L1.dbo.NOMENKLATURA N ON SG.NOMENKLATURA_GUID=N.GUID
+  where 1=1
+  AND DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI != 0
+  AND N.RODITEL2 in ('СЗР ','Семена ','Удобрения','Лимагрейн')
+  --and SG.NOMENKLATURA_GUID=0xAF8AD4F5EF10792511EC5CA2AE7B5A42
+  group by N.NAIMENOVANIE
+	  ,N.PROIZVODITELI 
+	  ,([DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI]/7)+DATEPART(WEEK,GETDATE())
+	  ,DATEADD(WEEK, ([DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI]/7)+DATEPART(WEEK,GETDATE()) ,'25/12/2021') 
+,[DNEY_DO_ISTECHENIYA_SROKA_GODNOSTI]/7
+	  --,DATEPART(WEEK,GETDATE())
+	ORDER BY N.NAIMENOVANIE
+    ''')
+stok = pd.read_sql(sql,conn)
+stok['OSTATKI_PO_SROKAM'] = stok['OSTATKI_PO_SROKAM'].apply(lambda x:int(x) if type(x)!=int else x)
+sss = []
+for i in range(len(stok['OSTATKI_PO_SROKAM'])):
+    sss.append(i)
+stok['index'] = sss
+stok = stok[['index','PROIZVODITELI','NOMENKLATURA','OSTATKI_PO_SROKAM','week','DATE']]
+sql1 = ('''
+		WITH TSENA_POSTAVCHIKA AS (
+		SELECT distinct
+			 N.NAIMENOVANIE [NOMENKLATURA_NAME]
+			,[NOMENKLATURA_GUID]
+			,S.NAIMENOVANIE SEZON_GUID
+			,N.PROIZVODITELI
+			,N.RODITEL2
+			,K.NAIMENOVANIE KONTRAGENT
+			,MAX(ROUND(CASE WHEN (V.VALYUTA IS NOT NULL AND V.KURS IS NOT NULL) 
+								THEN (SPD.SUMMA/SPD.KOLICHESTVO) *V.KURS 
+							ELSE (SPD.SUMMA/SPD.KOLICHESTVO)
+						END,2)) 
+				OVER (Partition BY [NOMENKLATURA_GUID],S.NAIMENOVANIE,N.PROIZVODITELI,N.RODITEL2 ORDER BY [NOMENKLATURA_GUID]) AS TSENA_KZT
+			,ROW_NUMBER() OVER (PARTITION BY N.NAIMENOVANIE ORDER BY S.NAIMENOVANIE DESC ) AS RN
+			,(SPD.SUMMA/SPD.KOLICHESTVO) TSENA
+			,V.VALYUTA
+			,V.KURS
+			,V.PERIOD as PERIOD_KURSA
+		FROM [L1].[dbo].[SPETSIFIKATSIYA_PO_DOGOVORU] SPD
+		LEFT JOIN L1.dbo.NOMENKLATURA N 
+			ON SPD.NOMENKLATURA_GUID=N.GUID
+		LEFT JOIN [L1].[dbo].[DOGOVORY_KONTRAGENTOV]DK
+			ON DK.GUID=SPD.DOGOVOR_GUID
+		LEFT JOIN L1.dbo.SEZONY S 
+			ON DK.SEZON_GUID=S.GUID	
+		LEFT JOIN L1.dbo.KONTRAGENTY K 
+			ON DK.KONTRAGENT_GUID=K.GUID
+		LEFT JOIN [L1].[dbo].KURSY_VALYUT_ALL V 
+			ON V.PERIOD = DK.DATA AND V.VALYUTA = DK.VALYUTA_VZAIMORASCHETOV
+		WHERE 1=1
+			AND DK.TIP_DOGOVORA <>'С покупателем / заказчиком'
+			AND N.RODITEL2 IN ('СЗР ','Лимагрейн','Семена ','Удобрения')
+			--AND N.PROIZVODITELI='Август'
+			--AND N.GUID=0x80F1000C29EF79CA11E842FBF661D806
+		--ORDER BY NOMENKLATURA_GUID,S.NAIMENOVANIE
+		)
+		,tseni_nomenklatur as (
+								SELECT 
+									TP.NOMENKLATURA_GUID
+									,TP.KONTRAGENT
+									,cast(TP.TSENA_KZT AS numeric(10,2)) as TSENA_KZT_MAX
+								FROM TSENA_POSTAVCHIKA TP 
+								WHERE TP.RN=1
+								)
+
+
+
+
+
+
+
+SELECT 
+	n.NAIMENOVANIE as [name]
+	,n.PROIZVODITELI man
+	,convert(nvarchar(50),b.NOMENKLATURA_GUID,1) guid
+	,CASE WHEN PROIZVODITELI='FMC' THEN 0.3
+		WHEN PROIZVODITELI='Valagro' THEN 0
+		WHEN PROIZVODITELI='BASF' THEN 0.3
+		WHEN PROIZVODITELI='Corteva Agriscience' THEN 0.2
+		WHEN scor.KONTRAGENT in('ТОО "Кортева Агрисаенс Казахстан"') THEN 0.2
+		WHEN PROIZVODITELI='Август' THEN 0.5
+		WHEN PROIZVODITELI='Syngenta' THEN 0.5
+		WHEN PROIZVODITELI='QADAM' THEN 0.4
+		WHEN PROIZVODITELI='QADAMFerti' THEN 0.25
+		WHEN PROIZVODITELI='БашИнком' THEN 0.5
+		WHEN PROIZVODITELI='Bionovatic' THEN 0.25
+		WHEN n.PROIZVODITELI='Pioneer' AND n.VIDY_KULTUR_NOMENKLATURY='Подсолнечник' THEN 0.2 
+	ELSE 1 END AS  [pay]
+	,scor.TSENA_KZT_MAX AS price
+	,case when sum(Отгрузка) is null then (sum( b.Количество))
+		else (sum( b.Количество)-sum(Отгрузка)) 
+	end quan,
+	datepart(week,b.[ДатаОтгрузки]) week,
+	DATEADD(WEEK,datepart(week,b.[ДатаОтгрузки]),'25/12/2021') date
+	--,case when 
+FROM [L1].[dbo].[DOGOVORY_KONTRAGENTOV] a 
+left join (select 
+				sum(KOLICHESTVO) Количество
+				,DOGOVOR_GUID
+				,NOMENKLATURA_GUID
+				,min(DATA_OTGRUZKI)ДатаОтгрузки
+			from [L1].[dbo].[SPETSIFIKATSIYA_PO_DOGOVORU] 
+			group by DOGOVOR_GUID,NOMENKLATURA_GUID) b 
+	on a.guid=b.DOGOVOR_GUID
+left join tseni_nomenklatur scor ON convert(nvarchar(50),scor.NOMENKLATURA_GUID ,1)=convert(nvarchar(50),b.NOMENKLATURA_GUID,1)  
+LEFT JOIN [L1].[dbo].[MENEDZHERY] m on a.[MENEDZHER_GUID]=m.guid
+LEFT JOIN [L1].[dbo].[NOMENKLATURA] n on b.[NOMENKLATURA_GUID]=n.[GUID]
+LEFT JOIN [L1].[dbo].[SEZONY] s on s.[GUID]=a.[SEZON_GUID]
+LEFT JOIN [L1].[dbo].[ORGANIZATSII] o on o.[GUID]=a.[ORGANIZATSIYA_GUID]
+LEFT JOIN (
+                SELECT
+                        [DOGOVOR_GUID]
+                        ,[NOMENKLATURA_GUID]
+                        --,[Номенклатура_v2_guid]
+                        ,sum([KOLICHESTVO]) Отгрузка
+                FROM [L1].[dbo].[VYRUCHKA_I_SEBESTOIMOST_PRODAZH]
+                group by
+                        [DOGOVOR_GUID]
+                        ,[NOMENKLATURA_GUID]
+                        --,[Номенклатура_v2_guid]
+      ) v on v.[DOGOVOR_GUID]=b.[DOGOVOR_GUID] and v.[NOMENKLATURA_GUID]=b.[NOMENKLATURA_GUID]
+--LEFT JOIN (
+--                SELECT
+--                        [NOMENKLATURA_GUID]
+--                FROM [L1].[dbo].[TOVARY_NA_SKLADAKH] --[AA_DWH].[dbo].[ТоварыНаСкладахОстаткиПоСрокамГодности]
+--               -- where [SOURCE_BASE]='erp'
+--                group by [NOMENKLATURA_GUID]) t on b.[NOMENKLATURA_GUID]=t.[NOMENKLATURA_GUID]
+ 
+WHERE 
+        s.NAIMENOVANIE = 'Сезон 2022' 
+        and   STATUS='Действует'
+        and TIP_DOGOVORA= 'С покупателем / заказчиком'
+        and b.NOMENKLATURA_GUID is not null
+        and o.NAIMENOVANIE like '%ТОО «Alem Agro Holding (АлемАгро Холдинг)»%'
+
+		--AND b.NOMENKLATURA_GUID=0x80F1000C29EF79CA11E842FBF661D806    
+
+GROUP BY    --a.description
+        n.NAIMENOVANIE
+        ,n.PROIZVODITELI
+        --,b.SKLAD_OTGRUZKI
+        --,scor.УсловияОплаты
+        ,scor.TSENA_KZT_MAX
+        ,convert(nvarchar(50),b.NOMENKLATURA_GUID,1)
+        ,datepart(week,b.[ДатаОтгрузки])
+        ,DATEADD(WEEK,datepart(week,b.[ДатаОтгрузки]),'25/12/2021')
+		,CASE WHEN PROIZVODITELI='FMC' THEN 0.3
+		WHEN PROIZVODITELI='Valagro' THEN 0
+		WHEN PROIZVODITELI='BASF' THEN 0.3
+		WHEN PROIZVODITELI='Corteva Agriscience' THEN 0.2
+		WHEN scor.KONTRAGENT in('ТОО "Кортева Агрисаенс Казахстан"') THEN 0.2
+		WHEN PROIZVODITELI='Август' THEN 0.5
+		WHEN PROIZVODITELI='Syngenta' THEN 0.5
+		WHEN PROIZVODITELI='QADAM' THEN 0.4
+		WHEN PROIZVODITELI='QADAMFerti' THEN 0.25
+		WHEN PROIZVODITELI='БашИнком' THEN 0.5
+		WHEN PROIZVODITELI='Bionovatic' THEN 0.25
+		WHEN n.PROIZVODITELI='Pioneer' AND n.VIDY_KULTUR_NOMENKLATURY='Подсолнечник' THEN 0.2 
+	ELSE 1 END
+		--,Отгрузка
+  -- ,b.Количество
+
+		order by datepart(week,b.[ДатаОтгрузки]) ,convert(nvarchar(50),b.NOMENKLATURA_GUID,1),scor.TSENA_KZT_MAX
+    ''')
+plan = pd.read_sql(sql1,conn)
+plan['quan'] = plan['quan'].apply(lambda x:int(x) if type(x)!=int else x)
+sss = []
+for i in range(len(plan['name'])):
+    sss.append(i)
+plan['index'] = sss
+plan = plan[['index','man','name','guid','pay','price','quan','week','date']]
+stoks = []
+for i in stok['OSTATKI_PO_SROKAM']:
+    stoks.append(i)
+need = []
+summ = []
+for i in range(len(plan['name'])):
+    z = list(stok[(stok['NOMENKLATURA'] == plan['name'][i]) & (stok['week'] >= plan['week'][i] + 13 )]['index'])
+    r = plan['quan'][i]
+    for j in z:
+        if r <= 0:
+            continue
+        else:
+            if r>stoks[j]:
+                r = r - stoks[j]
+                stoks[j] = 0
+            elif r<stoks[j]:
+                s = stoks[j] - r
+                r = 0
+                stoks[j] = s
+            else:
+                r = 0
+                stoks[j] = 0
+    if r<=0:
+        need.append(0)
+    else:
+        need.append(r)
+z = []
+for i in range(len(plan['name'])):
+    zz = []
+    zz.append(plan['index'][i])
+    zz.append(plan['man'][i])
+    zz.append(plan['name'][i])
+    zz.append(plan['guid'][i])
+#     zz.append(plan['Склад'][i])
+    zz.append(plan['pay'][i])
+    zz.append(plan['price'][i])
+    zz.append(plan['quan'][i])
+    if plan['week'][i]<=today.isocalendar()[1]:
+        zz.append((today.isocalendar()[1]))
+    elif today.isocalendar()[1]<plan['week'][i]<=today.isocalendar()[1]+4:
+        zz.append((today.isocalendar()[1]))
+    else:
+        zz.append((plan['week'][i])-4)
+    zz.append(plan['date'][i])
+    zz.append(need[i])
+    zz.append(need[i]*plan['price'][i])
+    zz.append(need[i]*plan['price'][i]*plan['pay'][i])
+    z.append(zz)
+final = pd.DataFrame(z)
+final.columns = ['index','man','name','guid','pay','price','quan','week','date','need','sum','paysum']
+tranzh = [26,43,52]
+a = 0
+b = tranzh[0]+1
+indexx = len(z)
+for i in range(len(tranzh)):
+    zz = []
+    Shama = list(final[(final['man'] == 'BASF') & (final['week'] < b) & (final['week'] >= a)]['index'])
+    jj = 0
+    for j in Shama:
+        jjj = final['price'][j]*final['need'][j]
+        jj+=jjj
+    d = "2022-W"+str(tranzh[i])
+    r = datetime.datetime.strptime(d + '-1', "%Y-W%W-%w")
+    t = Timestamp(r)
+    zz.append(indexx)
+    zz.append(final['man'][Shama[0]])
+    zz.append(final['name'][Shama[0]])
+    zz.append(final['guid'][Shama[0]])
+#     zz.append(final['Склад'][Shama[0]])
+    zz.append(0)
+    zz.append(0)
+    zz.append(0)
+    zz.append(tranzh[i])
+    zz.append(t)
+    zz.append(0)
+    zz.append(jj)
+    zz.append(jj*0.2)
+    indexx+=1
+    z.append(zz)
+    if i == 0:
+        a = tranzh[0]+1
+        b = tranzh[1]
+    if i == 1:
+        a = tranzh[1]
+        b = tranzh[2]+1
+final1 = pd.DataFrame(z)
+final1.columns = ['index','man','name','guid','pay','price','quan','week','date','need','sum','paysum']
+final1['sum'] = final1['sum'].fillna(0)
+final1['paysum'] = final1['paysum'].fillna(0)
+final1['sum'] = final1['sum'].apply(lambda x:int(x) if type(x)!=int else x)
+final1['paysum'] = final1['paysum'].apply(lambda x:int(x) if type(x)!=int else x)
+final1.head(1000)
