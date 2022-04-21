@@ -1,30 +1,32 @@
-SELECT n.[ssylka] as [guid]
-		,n2.ssylka as [roditel_guid]
+SELECT n.[ssylka] as [GUID]
+		,n2.ssylka as [RODITEL_GUID]
 	  ,CASE 
 		WHEN n.[pometka_udaleniya] = 0x00 THEN 'Нет'
 		ELSE 'Да'
-	END AS [pometka_udaleniya]
-      ,n.naimenovanie as[naimenovanie]
-	  ,n2.naimenovanie [roditel]
+	END AS [POMETKA_UDALENIYA]
+      ,n.naimenovanie as [NAIMENOVANIE]
+	  ,n2.naimenovanie as [RODITEL]
 	  ,case when n3.naimenovanie ='Лимагрейн' then 'Семена'
 			when n3.naimenovanie='Семена 'then 'Семена'
 			else n3.naimenovanie 
-	  end as [roditel2]
-	  ,p.naimenovanie proizvoditeli
-	  ,kn.naimenovanie [kategorii_nomenklatury]
-	  ,n.ves_znamenatel ves_v_edinitse_khraneniya
-	  ,uei.naimenovanie edinitsa_khraneniya
-	  ,n.ves_chislitel ves_v_edinitse_izmereniya
-	  ,uei2.naimenovanie edinitsa_izmereniya
-	  ,n.vid_tseny_min
-	  ,n.vid_tseny_zakupa
-	  ,n.vid_tseny_zakupa_1_0_0 as vid_tseny_zakupa_100
-	  ,'erp' as [source_base]
-	  ,vkn.naimenovanie vidy_kultur_nomenklatury
-	  ,vt.naimenovanie vidy_tekhnologiy
-	  ,n.naimenovanie_dlya_e_s_f as [naimenovanie_dlya_ESF]
-	  ,n.assortiment_tovara as [assortiment_tovara_guid]
-	  ,n.tekhnologiya as [tekhnologiya_guid]
+	  end as [RODITEL2]
+	  ,p.naimenovanie as PROIZVODITELI
+	  ,kn.naimenovanie as [KATEGORII_NOMENKLATURY]
+	  ,n.ves_znamenatel as VES_V_EDINITSE_KHRANENIYA
+	  ,uei.naimenovanie as EDINITSA_KHRANENIYA
+	  ,n.ves_chislitel as VES_V_EDINITSE_IZMERENIYA
+	  ,uei2.naimenovanie as EDINITSA_IZMERENIYA
+	  ,n.vid_tseny_min as VID_TSENY_MIN
+	  ,n.vid_tseny_zakupa as VID_TSENY_ZAKUPA
+	  ,n.vid_tseny_zakupa_1_0_0 as VID_TSENY_ZAKUPA_100
+	  ,'erp' as [SOURCE_BASE]
+	  ,vkn.naimenovanie AS VIDY_KULTUR_NOMENKLATURY
+	  ,vt.naimenovanie AS VIDY_TEKHNOLOGIY
+	  ,n.naimenovanie_dlya_e_s_f as [NAIMENOVANIE_DLYA_ESF]
+	  ,n.assortiment_tovara as [ASSORTIMENT_TOVARA_GUID]
+	  ,n.tekhnologiya as [TEKHNOLOGIYA_GUID]
+	  ,N.kratnost AS KRATNOST
+--into [L1].[DBO].[NOMENKLATURA] 
   FROM [L0].[dbo].[nomenklatura] n 
   left join [L0].[dbo].[nomenklatura] n2 on n.roditel=n2.ssylka
   left join [L0].[dbo].[nomenklatura] n3 on n2.roditel=n3.ssylka
