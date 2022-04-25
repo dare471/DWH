@@ -50,3 +50,4 @@ SELECT
 	left join [L0].dbo.valyuty v on  dk.valyuta_vzaimoraschetov=v.ssylka
 	LEFT join [L0].dbo.kursy_valyut kv on cast(kv.period AS date)=CAST(dk.data AS date) and v.ssylka=kv.valyuta
 where spd.kolichestvo<>0 and spd.summa<>0
+and dk.status=0xA92F27FC8D2DBD51466ED7D8981B86F1 and dk.pometka_udaleniya=0x00
