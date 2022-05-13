@@ -4,6 +4,16 @@ select max(dvs.ssylka)ssylka
 from [L0].dbo.dokument_v_servise dvs
 group by dokument
 )
+, kadr as ( 
+SELECT [period] AS [PERIOD]
+         ,[fizicheskoe_litso] AS [FIZICHESKOE_LITSO_GUID]
+         ,isnull(sp.ssylka,0x00000000000000000000000000000000) as [STRUKTURA_PREDPRIYATIYA_GUID]
+  FROM [L0].[dbo].[kadrovaya_istoriya_sotrudnikov]kis
+  left join [L0].dbo.[shtatnoe_raspisanie] shr on kis.dolzhnost_po_shtatnomu_raspisaniyu=shr.ssylka
+  left join [L0].dbo.[mesto_pozitsii_shtatnogo_raspisaniya_v_strukture_predpriyatiya] mes on shr.ssylka=mes.[pozitsiya]
+  left join [L0].[dbo].[struktura_predpriyatiya] sp  on sp.ssylka=mes.[podrazdelenie]
+)
+
 
 
 SELECT  dk.[ssylka] as [GUID]
@@ -41,6 +51,9 @@ SELECT  dk.[ssylka] as [GUID]
 	dk.kontragent as [KONTRAGENT_GUID],
 	dk.menedzher as [MENEDZHER_GUID],
 	dk.biznes_region as [BIZNES_REGION_GUID],
+	case when 
+	kis.STRUKTURA_PREDPRIYATIYA_GUID is null then 0x00000000000000000000000000000000 else kis.STRUKTURA_PREDPRIYATIYA_GUID end as STRUKTURA_PREDPRIYATIYA_GUID 
+	,
 	dk.sezon as [SEZON_GUID],
 	dk.sklad as [SKLAD_GUID],
 	dk.summa as [SUMMA],
@@ -72,7 +85,7 @@ SELECT  dk.[ssylka] as [GUID]
 	,dk.standartnye_usloviya_zaklyucheniya as [STANDARTNYE_USLOVIYA_ZAKLYUCHENIYA]
 	, CASe when dk.valyuta_vzaimoraschetov=0x80DE000C29E67B2E11E628A40BA74F44 then dk.summa 
 	else dk.summa * kv.kurs end as [SUMMA_KZ_TG]
-	--into [L1].[dbo].[DOGOVORY_KONTRAGENTOV]
+--into [L1].[dbo].[DOGOVORY_KONTRAGENTOV]
   FROM [L0].[dbo].[dogovory_kontragentov] dk
   left join [L0].[dbo].programmy_po_dogovoram ppd on dk.programma_dogovora=ppd.ssylka
   left join [L0].dbo.valyuty v on  dk.valyuta_vzaimoraschetov=v.ssylka
@@ -81,4 +94,18 @@ SELECT  dk.[ssylka] as [GUID]
   left join dokument_podpishi dp on dk.ssylka=dp.dokument
   left join [L0].dbo.dokument_v_servise dvs on dp.ssylka=dvs.ssylka
   left join [L0].dbo.sostoyaniya_zakazov_klientov szk on dk.zakaz_klienta=szk.zakaz
+  left join (SELECT [ssylka] as [guid]
+				  ,[naimenovanie] as [naimenovanie]
+				  ,[podrazdelenie] as [podrazdelenie_guid]
+				  ,[fizicheskoe_litso] as [fizicheskoe_litso_guid]
+				  ,'erp' as [source_base]
+			  FROM [L0].[dbo].[polzovateli]
+			  ) m on dk.menedzher=m.guid
+  outer apply ( select TOP 1
+					kis.*
+					from kadr as kis
+					where kis.fizicheskoe_litso_guid = m.[fizicheskoe_litso_guid]
+						and kis.period < dk.[data]
+					order by kis.period desc
+				) kis
   where dk.status=0xA92F27FC8D2DBD51466ED7D8981B86F1 and dk.pometka_udaleniya=0x00
