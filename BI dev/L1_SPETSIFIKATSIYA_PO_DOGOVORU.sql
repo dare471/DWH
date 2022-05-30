@@ -18,6 +18,7 @@ SELECT
 	,dateadd(year,-2000,sp.period)[PERIOD]
 	,sp.nomenklatura as [NOMENKLATURA_GUID]
 	,vkn.naimenovanie as [VIDY_KULTUR]
+	,SPD.vidy_kultury AS [VIDY_KULTUR_GUID]
 	,spd.kolichestvo as [KOLICHESTVO]
 	,cast(spd.summa / spd.kolichestvo as numeric(10,2)) as [TSENA]
 	,spd.summa as [SUMMA]

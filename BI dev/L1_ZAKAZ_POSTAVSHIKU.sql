@@ -1,15 +1,17 @@
-SELECT zp.[ssylka] as guid
-		,zp.nomer as nomer_zakaza
-		,dateadd(year,-2000,zp.data)data
-		,zp.kontragent as kontragent_guid
-		,zp.menedzher as menedzher_guid
-		,ttz.tsena
-		,ttz.kolichestvo
-		,ttz.statya_d_d_s as statya_DDS_guid
-		,ttz.kommentariy_uslugi
-		,ttz.nomenklatura as nomenklatura_guid
-		,ttz.analitika_raskhodov_order as analitika_raskhodov_order_guid
-		,ttz.analitika_raskhodov as analitika_raskhodov_guid
-  FROM [L0].[dbo].[tab_tovary_zakazpostavshchiku] ttz
-  left join [L0].[dbo].[zakaz_postavshchiku] zp on ttz.ssylka=zp.ssylka
+SELECT zp.[ssylka] as GUID
+		,zp.nomer as NOMER_ZAKAZA
+		,dateadd(year,-2000,zp.data) as DATA
+		,zp.kontragent as KONTRAGENT_GUID
+		,zp.menedzher as MENEDZHER_GUID
+		,zp.dogovor as DOGOVOR_GUID
+		,ttz.tsena as TSENA
+		,ttz.kolichestvo as KOLICHESTVO
+		,ttz.statya_d_d_s as STATYA_DDS_GUID
+		,ttz.kommentariy_uslugi as  KOMMENTARIY_USLUGI
+		,ttz.nomenklatura as NOMENKLATURA_GUID
+		,ttz.analitika_raskhodov_order as ANALITIKA_RASKHODOV_ORDER_GUID
+		,ttz.analitika_raskhodov as ANALITIKA_RASKHODOV_GUID
+--into L1.dbo.ZAKAZ_POSTAVSHIKU
+FROM [L0].[dbo].[tab_tovary_zakazpostavshchiku] ttz
+left join [L0].[dbo].[zakaz_postavshchiku] zp on ttz.ssylka=zp.ssylka
   where zp.pometka_udaleniya=0x00
