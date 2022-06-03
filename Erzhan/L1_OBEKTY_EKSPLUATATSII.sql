@@ -9,4 +9,4 @@ SELECT distinct oe.[ssylka] AS [guid]
 	  --into [L1].[dbo].[OBEKTY_EKSPLUATATSII]
   FROM [L0].[dbo].[OBEKTY_EKSPLUATATSII] oe
   left join [L0].[dbo].[obekty_ekspluatatsii]  oe2 on oe.roditel=oe2.ssylka
-  where oe.[pometka_udaleniya]=0x00
+  --where oe.[pometka_udaleniya]=0x00

@@ -17,6 +17,8 @@ SELECT [period] AS [PERIOD]
 
 
 SELECT  dk.[ssylka] as [GUID]
+		,DK.osnovnoy_dogovor AS OSNOVNOY_DOGOVOR
+		,DK.nomer_dop_soglasheniya AS NOMER_DOP_SOGLASHENIYA
 		,case when dk.standartnye_usloviya_zaklyucheniya=0x01 then 'да' 
 		else 'нет'
 		end as [AVTOSOGLASOVANIE],

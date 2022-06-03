@@ -19,4 +19,4 @@ SELECT KUG.[ssylka] as [GUID]
   LEFT JOIN [L0].[dbo].[karty_ucheta_g_s_m] KUG ON S.OBEKTY_EKSPLUATATSII_GUID=KUG.ssylka  
   LEFT JOIN [L0].dbo.fizicheskie_litsa FL ON S.SOTRUDNIK_GUID=FL.ssylka
   LEFT JOIN [L0].dbo.kontragenty K ON KUG.postavshchik=K.ssylka
-  WHERE KUG.[pometka_udaleniya]=0x00
+  --WHERE KUG.[pometka_udaleniya]=0x00
