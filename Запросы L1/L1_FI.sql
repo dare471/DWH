@@ -2,8 +2,7 @@
 SELECT f.[ssylka]
       ,[naimenovanie]
       ,pfl.description [pol]
-      ,[i_n_n]
-      ,[mesto_rozhdeniya]
+
       ,[f_i_o]
 	  ,DATEADD(YEAR, -2000, f.data_rozhdeniya)data_rozhdeniya
   FROM [L0].[dbo].[fizicheskie_litsa] f
