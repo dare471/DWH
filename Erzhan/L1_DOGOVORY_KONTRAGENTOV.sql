@@ -46,7 +46,7 @@ SELECT  dk.[ssylka] as [GUID]
 		,CAST(dk.dogovory_vnutri_gruppy AS bit) AS [DOGOVOR_VNUTRI_GRUPPY]
 	,DATEADD(YEAR, - 2000, CAST(dk.data_nachala_deystviya AS date)) AS [DATA_NACHALA_DEYSTVIYA],
 	DATEADD(YEAR, - 2000, CAST(dk.data_okonchaniya_deystviya AS date)) AS [DATA_OKONCHANIYA_DEYSTVIYA],
-	DATEADD(YEAR, - 2000, CAST(dk.data AS date)) AS [DATA],
+	DATEADD(YEAR, - 2000,dk.data ) AS [DATA],
 	dk.nomer AS [NOMER],
 	CAST(dk.soglasovan AS bit) AS [SOGLASOVAN],
 	dk.organizatsiya as [ORGANIZATSIYA_GUID],
@@ -75,7 +75,7 @@ SELECT  dk.[ssylka] as [GUID]
 		WHEN 0x9B7EC3D470857E364E10EF7D3C09E30D THEN 'Наша транспортная служба до клиента'
 		ELSE 'Не указан'
 	END AS [SPOSOB_DOSTAVKI],
-	dk.adres_dostavki,
+	dk.adres_dostavki AS ADRES_DOSTAVKI,
 	CASE szk.sostoyanie	
 		WHEN 0x9AE0BC17F922537141FF55A099D7C9C4 THEN 'Закрыт'
 		WHEN 0xA22914A8595EC642469AF2899D7A3D9A THEN 'Ожидается обеспечение'
