@@ -13,7 +13,7 @@ group by
 	,spd.nomer_stroki_t_ch
 	,spd.srok_postavki 
 )
-SELECT 
+SELECT DISTINCT
 	 sp.dogovor as [DOGOVOR_GUID]
 	,dateadd(year,-2000,sp.period)[PERIOD]
 	,sp.nomenklatura as [NOMENKLATURA_GUID]
