@@ -1,0 +1,17 @@
+/****** Скрипт для команды SelectTopNRows из среды SSMS  ******/
+SELECT [tip]
+      ,[vid]
+      ,[predstavlenie]
+      ,[znacheniya_poley]
+      ,[strana]
+      ,[region]
+      ,[gorod]
+      ,[adres_e_p]
+      ,[domennoe_imya_servera]
+      ,[nomer_telefona]
+      ,[nomer_telefona_bez_kodov]
+      ,[vid_dlya_spiska]
+      ,[c_r_m___osnovnoy_dlya_svyazi]
+      ,[ssylka]
+	  --into [L1].[dbo].kontaktnaya_informatsiya_fizicheskielitsa
+  FROM [L0].[dbo].[tab_kontaktnaya_informatsiya_fizicheskielitsa]

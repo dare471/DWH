@@ -3,6 +3,7 @@ SELECT zp.[ssylka] as GUID
 		,dateadd(year,-2000,zp.data) as DATA
 		,zp.kontragent as KONTRAGENT_GUID
 		,K.naimenovanie AS KONTRAGENT
+		,ZP.organizatsiya AS ORGANIZATSIYA
 		,zp.menedzher as MENEDZHER_GUID
 		,P.naimenovanie AS MENEDZHER
 		,zp.dogovor as DOGOVOR_GUID
@@ -21,3 +22,5 @@ LEFT JOIN L0.DBO.polzovateli P
 LEFT JOIN L0.DBO.kontragenty K 
 	ON K.ssylka=ZP.kontragent
   where zp.pometka_udaleniya=0x00
+
+

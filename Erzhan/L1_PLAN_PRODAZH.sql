@@ -1,54 +1,37 @@
-/****** Скрипт для Che tam kvest? команды SelectTop*ti*NRows из среды SSMS  ******/
-SELECT pp.[ssylka] as guid
-      ,pp.[pometka_udaleniya]
-      ,dateadd(year,-2000,[data])[data]
-      ,[nomer]
-      ,[proveden]
-      ,[kommentariy]
-      ,[podrazdelenie]as[podrazdelenie_guid]
-      ,[status]as[status_guid]
-      ,pp.[periodichnost]as[periodichnost_guid]
-      ,dateadd(year,-2000,cast(pp.[nachalo_perioda] as date))[nachalo_perioda]
-      ,dateadd(year,-2000,cast([okonchanie_perioda] as date)) [okonchanie_perioda]
-      ,[menedzher] as [menedzher_guid]
-      ,[obnovit_dopolnit]
-      ,[izmenit_rezultat_na]
-      ,[tochnost_okrugleniya]
-      ,[raspredelit_po_rabochim_dnyam]
-      ,[stsenariy] as [stsenariy_guid]
-      ,vp.naimenovanie [vid_plana]
-      ,[summa_dokumenta]
-      ,[planirovat_po_summe]
-      ,[valyuta] as [valyuta_guid]
-      ,[zapolneno_avtomaticheski]
-      ,[kross_tablitsa]
-      ,[partner] as [partner_guid]
-      ,[soglashenie]as [soglashenie_guid]
-      ,[sklad]as[sklad_guid]
-      ,pp.[grafik_oplaty]as[grafik_oplaty_guid]
-      ,[kalendar]as[kalendar_guid]
-      ,[dogovor]as[dogovor_guid]
-      ,pp.[zapolnyat_plan_oplat]
-      ,pp.[zapolnyat_po_formule]
-      ,pp.[otrazhaetsya_v_byudzhetirovanii]
-      ,pp.[statya_byudzhetov] as [statya_byudzhetov_guid]
-      ,[stsenariy_byudzhetirovaniya]as[stsenariy_byudzhetirovaniya_guid]
-      ,[otvetstvennyy]as[otvetstvennyy_guid]
-      ,[format_magazina]as[format_magazina_guid]
-      ,pp.[otrazhaetsya_v_byudzhetirovanii_oplaty]
-      ,pp.[statya_byudzhetov_oplat]as[statya_byudzhetov_oplat_guid]
-      ,pp.[otrazhaetsya_v_byudzhetirovanii_oplaty_kredit]
-      ,pp.[statya_byudzhetov_oplat_kredit]as[statya_byudzhetov_oplat_kredit_guid]
-      ,s.naimenovanie [sezon]
-      ,[oplata_avans]
-      ,[oplata_promezhutochnaya]
-      ,[oplata_kredit]
-      ,pp.[zameshchayushchiy]
-      ,[naznachenie]as[naznachenie_guid]
-      ,[organizatsiya_dlya_byudzheta]as[organizatsiya_dlya_byudzheta_guid]
-      ,[rezhim_korrektirovki]
-      ,[status_korrektirovki]as [status_korrektirovki_guid]
-      ,pp.[oblast_dannykh_osnovnye_dannye]
-  FROM [L0].[dbo].[plan_prodazh] pp
-  left join [L0].dbo.vidy_planov vp on pp.vid_plana=vp.ssylka
-  left join [L0].dbo.sezony s on pp.sezon=s.ssylka
+
+  SELECT
+  PP.ssylka AS GUID
+  ,CASE WHEN VP.vozmozhnost_rezhima_korrektirovki=0x01 THEN 'Да'
+		ELSE 'Нет' 
+	END AS VOZMOZHNOST_REZHIMA_KORREKTIROVKI
+,DATEADD(YEAR,-2000,PYP.period) AS PERIOD
+,SP.description AS STATUS
+,PYP.nomenklatura AS NOMENKLATURA_GUID
+,PYP.menedzher AS MENEDZHER_GUID
+,PP.sezon AS SEZON_GUID
+,PYP.KOLICHESTVO AS KOLICHESTVO
+,PYP.SUMMA AS SUMMA
+,STP.[naimenovanie] AS STSENARII
+,PP.podrazdelenie AS PODRAZDELENIE_GUID
+,CASE WHEN PP.rezhim_korrektirovki=0x01 THEN 'Да'
+		ELSE 'Нет' 
+	END AS REZHIM_KORREKTIROVKI
+,SKPP.description AS STATUS_KORREKTIROVKI
+,VP.naimenovanie AS VIDY_PLANOV 
+
+--INTO L1.dbo.PLAN_PRODAZH
+
+  FROM [L0].[dbo].[plany_prodazh] AS PYP
+LEFT JOIN [L0].[dbo].[plan_prodazh] PP
+	ON PYP.plan_prodazh=PP.ssylka
+LEFT JOIN L0.DBO.vidy_planov AS VP
+	ON VP.ssylka=PP.vid_plana
+LEFT JOIN L0.DBO.sezony S
+	ON PP.sezon=S.ssylka
+LEFT JOIN [L0].[dbo].[stsenarii_tovarnogo_planirovaniya] STP
+	ON PYP.stsenariy=STP.[ssylka]
+LEFT JOIN L0.DBO.statusy_planov AS SP
+	ON PYP.status=SP.ssylka
+LEFT JOIN L0.DBO.statusy_korrektirovki_plana_prodazh AS SKPP
+	ON PP.status_korrektirovki=SKPP.ssylka
+WHERE PYP.aktivnost=0x01
