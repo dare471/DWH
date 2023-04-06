@@ -33,5 +33,5 @@ LEFT JOIN L0.DBO.sklady S
 LEFT JOIN L0.DBO.partnery PAR
 	ON RONT.poluchatel=PAR.ssylka
 LEFT JOIN L0.DBO.struktura_predpriyatiya SP
-	ON RONT.poluchatel=SP.ssylka
+	ON RONT.poluchatel=SP.ssilka
   --WHERE ssylka=0xA2367085C2A4312A11EB5942BF56F52E

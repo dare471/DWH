@@ -1,6 +1,7 @@
 SELECT
 	'ERP' AS source_base,
 	СтатьиДДС.ssylka AS [GUID],
+	СтатьиДДС.roditel AS RODITEL_GUID,
 	СтатьиДДС.kod AS [KOD],
 	СтатьиДДС.naimenovanie AS [NAIMENOVANIE],
 	ГруппыСтатейДДС3.naimenovanie AS [RODITEL_0],

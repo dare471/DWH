@@ -11,6 +11,7 @@ SELECT n.[ssylka] as [GUID]
 			else n3.naimenovanie 
 	  end as [RODITEL2]
 	  ,p.naimenovanie as PROIZVODITELI
+	  ,n.kod
 	  ,kn.naimenovanie as [KATEGORII_NOMENKLATURY]
 	  ,CASE WHEN KN.naimenovanie_RODITEL IN ('Пестициды','Биопрепараты') THEN 'СЗР' 
 			ELSE KN.naimenovanie_RODITEL 
@@ -35,15 +36,14 @@ SELECT n.[ssylka] as [GUID]
   left join [L0].[dbo].[nomenklatura] n2 on n.roditel=n2.ssylka
   left join [L0].[dbo].[nomenklatura] n3 on n2.roditel=n3.ssylka
   left join (SELECT KN.[ssylka]
-      
-      ,KN.[naimenovanie]
-	  ,ISNULL(CASE WHEN KN2.naimenovanie='Сортовые' THEN 'Семена' ELSE KN2.naimenovanie END , KN1.naimenovanie )AS naimenovanie_RODITEL
-  FROM [L0].[dbo].[kategorii_nomenklatury] KN
-  LEFT JOIN   [L0].[dbo].[kategorii_nomenklatury]  KN1
-		ON KN.roditel=KN1.ssylka
-LEFT JOIN   [L0].[dbo].[kategorii_nomenklatury]  KN2
-		ON KN1.roditel=KN2.ssylka
-		) kn on n.kategoriya=kn.ssylka
+				  ,KN.[naimenovanie]
+				  ,ISNULL(CASE WHEN KN2.naimenovanie='Сортовые' THEN 'Семена' ELSE KN2.naimenovanie END , KN1.naimenovanie )AS naimenovanie_RODITEL
+			  FROM [L0].[dbo].[kategorii_nomenklatury] KN
+			  LEFT JOIN   [L0].[dbo].[kategorii_nomenklatury]  KN1
+					ON KN.roditel=KN1.ssylka
+			  LEFT JOIN   [L0].[dbo].[kategorii_nomenklatury]  KN2
+					ON KN1.roditel=KN2.ssylka
+					) kn on n.kategoriya=kn.ssylka
   left join [L0].[dbo].[upakovki_edinitsy_izmereniya] uei on n.edinitsa_izmereniya=uei.ssylka
   left join [L0].[dbo].[upakovki_edinitsy_izmereniya] uei2 on n.ves_edinitsa_izmereniya=uei2.ssylka
   left join [L0].dbo.kultury vkn on n.kultura=vkn.ssylka

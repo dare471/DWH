@@ -1,0 +1,35 @@
+
+SELECT [ssilka] AS GUID
+      ,[nomer]
+      ,DKID.[naimenovanie] AS NAIMENOVANIE
+      ,[organizaciya] AS ORGANIZACIYA_GUID
+      ,[otvetstvennii] AS OTVETSTVENNII_GUID
+      ,[partner] AS PARTNER_GUID
+	  ,CASE [kharakter_dogovora]
+			WHEN 0xB2B8BBD49B29D48A4E6AB5E8A3397BB7 THEN 'Кредит или займ полученный'
+			WHEN 0xABB21B08CCD2410A4A2DF44ACCE24116 THEN 'Займ выданный'
+			ELSE 'Депозит'
+		END AS KHAREKTER_DOGOVORA
+		,CASE [tip_dogovora]
+			WHEN 0x837460C97AD55AFC463D3E21D0FD8C0B THEN 'Кредит в банке'
+			WHEN 0x99CFBA330009108F415C0CB0B16A557C THEN 'Внешний займ'
+			WHEN 0xA32650D6793D90504E7137AAFC4B6A22 THEN 'Внутренний займ'
+			WHEN 0xA03F39345D02B6F844BE475B360FBDEF THEN 'Вклад сотрудника'
+			ELSE 'Депозит без капитализации'
+		END AS TIP_DOGOVORA
+		,CASE [status]
+			WHEN 0x82D1CD037C7784B2447E1C9C3915309E THEN 'Не согласован'
+			WHEN 0xA92F27FC8D2DBD51466ED7D8981B86F1 THEN 'Действует'
+			WHEN 0xA2EA1532A615D3884BDCF62760B790DE THEN 'Отменен'
+			WHEN 0xB5C5689E9B6FFBB34CBFB80BB736CAC0 THEN 'На согласовании'
+			ELSE 'Закрыт'
+		END AS [STATUS]
+		,DATEADD(YEAR, -2000, data) AS DATA
+		,valyuty.naimenovanie AS VALYUTA_VZAIMORASCHETOV
+      ,DKID.[POMETKA_UDALENIYA] AS [POMETKA_UDALENIYA]
+
+	--INTO [L1].[dbo].[DOGOVORI_KREDITOV_I_DEPOZITOV]
+
+  FROM [L0].[dbo].[dogovori_kreditov_i_depozitov] AS DKID
+  LEFT JOIN L0.dbo.valyuty
+	ON DKID.valyuta_vzaimoraschetov=valyuty.ssylka

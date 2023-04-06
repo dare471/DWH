@@ -13,7 +13,6 @@ WITH VIRUCHKA AS (
 						SUM([summa_bez_n_d_s_v_valyute_vzaimoraschetov]) AS [SUMMA_VYRUCHKI_BEZ_NDS],
 						SUM(stoimost) AS STOIMOST,
 						SUM(stoimost_bez_n_d_s) AS [STOIMOST_BEZ_NDS]
-					--INTO [L1].[DBO].[VYRUCHKA_I_SEBESTOIMOST_PRODAZH] 
 					  FROM [L0].[dbo].[vyruchka_i_sebestoimost_prodazh] vsp
 					  LEFT JOIN L0.dbo.klyuchi_analitiki_ucheta_po_partneram AS kau ON vsp.analitika_ucheta_po_partneram=kau.ssylka
 					  left join [L0].[dbo].[dogovory_kontragentov] dk on vsp.dogovor=dk.ssylka
@@ -45,6 +44,8 @@ V.DATE
 ,CASE WHEN V.KOLICHESTVO <0 AND V.SUMMA_VYRUCHKI>0 THEN V.SUMMA_VYRUCHKI*(-1) ELSE V.SUMMA_VYRUCHKI END AS SUMMA_VYRUCHKI
 ,CASE WHEN V.KOLICHESTVO <0 AND V.SUMMA_VYRUCHKI_BEZ_NDS > 0 THEN V.SUMMA_VYRUCHKI_BEZ_NDS *(-1) ELSE V.SUMMA_VYRUCHKI_BEZ_NDS END AS SUMMA_VYRUCHKI_BEZ_NDS
 ,V.VALYUTA_VZAIMORASCHETOV
+
+--INTO [L1].[DBO].[VYRUCHKA_I_SEBESTOIMOST_PRODAZH] 
 FROM VIRUCHKA V
 --WHERE V.DOGOVOR_GUID IN (0x8128000C29EF79CA11E977BA6DBA5C8A,
 --0xA22B7085C2A4312A11EA884FE528EA5A)
