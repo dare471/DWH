@@ -1,0 +1,10 @@
+/****** Скрипт для команды SelectTopNRows из среды SSMS  ******/
+SELECT  [PERVYY_PARTNER] AS [PERVYY_PARTNER_GUID]
+      ,[VTOROY_PARTNER] AS [VTOROY_PARTNER_GUID]
+      ,VSMP.NAIMENOVANIE [VID_SVYAZI]
+      ,[AVTOR] AS [AVTOR_GUID]
+      ,SMP.[KOMMENTARIY]
+--INTO L1.DBO.[SVYAZI_MEZHDU_PARTNERAMI] 
+  FROM [L0].[dbo].[SVYAZI_MEZHDU_PARTNERAMI] AS SMP
+  INNER JOIN L0.DBO.vidy_svyazey_mezhdu_partnerami AS VSMP
+  ON SMP.vid_svyazi=VSMP.ssylka

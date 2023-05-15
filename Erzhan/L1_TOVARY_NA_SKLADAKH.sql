@@ -1,0 +1,17 @@
+SELECT distinct
+		DATEADD(YEAR, -2000,[period]) AS [PERIOD]
+      ,[synonym_registrator] AS [REGISTRATOR]
+      ,[nomer_stroki] AS [NOMER_STROKI]
+      ,[aktivnost] AS [AKTIVNOST]
+	  ,[vid_dvizheniya] as [VID_DVIZHENIYA]
+      ,[nomenklatura] AS [NOMENKLATURA_GUID]
+      ,[naznachenie] AS [NAZNACHENIE_GUID]
+      ,[sklad] AS [SKLAD_GUID]
+      ,[seriya] AS [SERIYA_GUID]
+      ,[v_nalichii] AS [V_NALICHII]
+      ,[k_otgruzke] AS [K_OTGRUZKE]
+      ,[kontrolirovat_ostatki] AS [KONTROLIROVAT_OSTATKI]
+	  ,tnv.registrator as [REGISTR_GUID]
+	  --into [L1].dbo.[TOVARY_NA_SKLADAKH]
+  FROM [L0].[dbo].[tovary_na_skladakh] tnv
+  order by [period],[nomer_stroki]

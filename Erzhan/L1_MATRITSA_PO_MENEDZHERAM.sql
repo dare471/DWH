@@ -1,0 +1,5 @@
+SELECT  [menedzher_guid]
+      ,[direktsiya]
+      ,[1_prioritet]
+      ,[2_prioritet]
+  FROM [L0].[dbo].[MATRITSA_PO_MENEDZHERAM]

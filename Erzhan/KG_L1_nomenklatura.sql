@@ -1,0 +1,75 @@
+/****** Скрипт для команды SelectTopNRows из среды SSMS  ******/
+SELECT  N.[ssylka] AS [GUID]
+		,N.[roditel] AS [RODITEL_GUID]
+		,CASE 
+			WHEN N.[pometka_udaleniya] = 0x00 THEN 'Нет'
+			ELSE 'Да'
+		END AS [POMETKA_UDALENIYA]
+		,N.[naimenovanie] AS [NAIMENOVANIE]
+		,N2.naimenovanie AS [RODITEL]
+		,case when n3.naimenovanie ='Лимагрейн' then 'Семена'
+			  when n3.naimenovanie='Семена 'then 'Семена'
+			  else n3.naimenovanie 
+		  end as [RODITEL2]
+		,P.naimenovanie AS [PROIZVODITELI]
+		,KN.[naimenovanie] AS [KATEGORII_NOMENKLATURY]
+		,KN2.[naimenovanie] AS [KATEGORII_NOMENKLATURY_GROUP]
+		,CAST(0 AS NUMERIC(15,3)) AS [VES_V_EDINITSE_KHRANENIYA]
+		
+		,CAST(NULL AS NVARCHAR(50)) AS  EDINITSA_KHRANENIYA
+		,CAST(0 AS NUMERIC(15,3)) AS [EDINITSA_KHRANENIYA]
+		,CAST(NULL AS NVARCHAR(50)) AS [EDINITSA_IZMERENIYA]
+		,CAST(0x00000000000000000000000000000000 AS BINARY(16)) AS [VID_TSENY_MIN]
+		,CAST(0x00000000000000000000000000000000 AS BINARY(16)) AS [VID_TSENY_ZAKUPA]
+		,CAST(0x00000000000000000000000000000000 AS BINARY(16)) AS [VID_TSENY_ZAKUPA_100]
+		,'aa_kg' AS [SOURCE_BASE]
+
+		--,vkn.naimenovanie AS VIDY_KULTUR_NOMENKLATURY
+		,CAST('' AS NVARCHAR(25)) AS  [VIDY_TEKHNOLOGIY]
+		,CAST('' AS NVARCHAR(200)) AS [NAIMENOVANIE_DLYA_ESF]
+		,CAST(NULL AS BINARY(16)) AS [ASSORTIMENT_TOVARA_GUID]
+		,CAST(NULL AS BINARY(16)) AS [TEKHNOLOGIYA_GUID]
+		,CAST(NULL AS NUMERIC(10,2)) AS [KRATNOST]
+		,CAST(NULL AS NUMERIC(5,2)) AS [NORMA_RASKHODOVANIYA]
+
+
+  FROM [L0_kg].[dbo].[nomenklatura] N 
+LEFT JOIN [L0_kg].[dbo].[nomenklatura] N2
+	ON N.roditel=N2.ssylka
+LEFT JOIN [L0_kg].[dbo].[nomenklatura] N3
+	ON N2.roditel=N3.ssylka
+left join [L0].[dbo].proizvoditeli p 
+	on n.proizvoditel=p.ssylka
+LEFT JOIN [L0_kg].[dbo].[kategorii_nomenklatury] AS KN
+	ON N.kategoriya=KN.[ssylka]
+LEFT JOIN [L0_kg].[dbo].[kategorii_nomenklatury] AS KN2
+	ON KN.[roditel]=KN2.[ssylka]
+left join [L0].dbo.kultury vkn on n.[vid_kultury]=vkn.ssylka
+--left join [L0].[dbo].[upakovki_edinitsy_izmereniya] uei on n.edinitsa_izmereniya=uei.ssylka
+ -- left join [L0].[dbo].[upakovki_edinitsy_izmereniya] uei2 on n.ves_edinitsa_izmereniya=uei2.ssylka
+  
+WHERE 1=1
+--AND NKZ.source_base='aa_kg'
+AND N.[pometka_udaleniya]=0
+AND N.[g_u_i_d___e_r_p]=''
+AND N.[ssylka] NOT IN (0xBA3E00155D01C90111E73AC4DAB457A5,
+						0xBA3E00155D01C90111E73AC50C102B40,
+						0xBA3E00155D01C90111E73AC53CFE5F23,
+						0xBA3E00155D01C90111E73AC58F0A6860,
+						0x80F4000C29EF79CA11E86B0B84CC7F4F,
+						0x9E490021856269C211E40DB054350883,
+						0x80DE00155D01C90111E81B772432ADB6,
+						0x80DE00155D01C90111E81B77476221E1,
+						0x80FD000C29EF79CA11E893C0FD3BE7F4,
+						0x80C500155D01C90111E7630377CB0626,
+						0x80F4000C29EF79CA11E8597F408303ED,
+						0x80F4000C29EF79CA11E8597F6183AAB8,
+						0x80C500155D01C90111E775BAEB04AFAE,
+						0x80E2000C29EF79CA11E8210194D4180A,
+						0xA11B0021856269C211E53CC5807E4395,
+						0x80DD00155D01C90111E80B2CF99D6973,
+						0x80F3000C29EF79CA11E84DDE5BAD76A3,
+						0x80F4000C29EF79CA11E86AD3AFE49EBD,
+						0x80E7000C29EF79CA11E8326B591AFC8D,
+						0x810F000C29EF79CA11E8FF8D04B808B3)
+--ORDER BY [g_u_i_d___e_r_p] ASC
