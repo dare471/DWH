@@ -1,0 +1,9 @@
+SUMARALEZ = 
+SUMMARIZE('new',new[DOGOVORY_NOMER]
+,new[DOGOVOR_GUID]
+,new[KONTRAGENT_GUID]
+// ,new[postuplenie]
+,"Count",DISTINCTCOUNT(new[postuplenie])
+,"RP?",IF(DISTINCTCOUNT(new[postuplenie])=1,SELECTEDVALUE(new[postuplenie]))
+,"summa",IF(DISTINCTCOUNT(new[postuplenie])=2,SUM(new[summa_2]),IF(AND(DISTINCTCOUNT(new[postuplenie])=1,SELECTEDVALUE(new[postuplenie])="R"),SUM(new[summa_2])))
+)
