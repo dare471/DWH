@@ -73,5 +73,5 @@ AD.FIZICHESKOE_LITSO
 ,SUM(AD.summa) OVER (PARTITION BY AD.FIZICHESKOE_LITSO, EOMONTH(AD.БОЛЕЕ_МЕНЕЕ_КОРЕКТНЫЕ_ДАТЫ)) [Сумма по месяцам]
 FROM ALL_DATA AS AD
 
-ORDER BY AD.FIZICHESKOE_LITSO,AD.period
-,EOMONTH(AD.БОЛЕЕ_МЕНЕЕ_КОРЕКТНЫЕ_ДАТЫ)
+ORDER BY cast(AD.period as date) desc,AD.FIZICHESKOE_LITSO
+,AD.NAIMENOVANIE,EOMONTH(AD.БОЛЕЕ_МЕНЕЕ_КОРЕКТНЫЕ_ДАТЫ)
